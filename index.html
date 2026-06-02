@@ -4,10 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0f766e" />
+  <meta name="description" content="Lokalt registreringsværktøj til stemning og søvn. Data gemmes kun på brugerens egen enhed." />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Stemning & Søvn" />
   <link rel="manifest" href="manifest.webmanifest" />
-  <title>Stemning & Søvn v1.6</title>
+  <title>Stemning & Søvn</title>
   <style>
     :root{
       --bg:#eef7f4; --card:rgba(255,255,255,.86); --card-solid:#ffffff; --text:#172033; --muted:#667085; --line:rgba(148,163,184,.28);
@@ -103,14 +107,17 @@
     body.dark .actionTile.dangerTile{color:#fca5a5;border-color:rgba(248,113,113,.4)}
     @media(max-width:520px){.dataStats,.dataActions{grid-template-columns:1fr}.dataHeader,.dataSection{padding-left:16px;padding-right:16px}.dataStats{padding-left:16px;padding-right:16px}}
 
+
+    .installNote{border:1px solid rgba(15,118,110,.16);background:rgba(236,253,245,.55);border-radius:20px;padding:14px;margin-top:12px}
+
 </style>
 </head>
 <body>
 <div class="app">
   <section class="hero">
     <h1 class="title">Stemning & Søvn</h1>
-    <p class="sub">Et simpelt registreringsværktøj. Data gemmes kun lokalt på denne telefon/browser. Personalet har ikke adgang, medmindre du selv viser skærmen eller eksporterer data.</p>
-    <div class="topActions"><button class="miniBtn" id="themeToggle" type="button">Mørk tilstand</button></div>
+    <p class="sub">Et simpelt registreringsværktøj. Data gemmes kun lokalt på din egen telefon eller computer. Oplysninger sendes ikke til behandler, hospital, GitHub eller andre servere. Du vælger selv, om du vil vise eller dele dine registreringer.</p>
+    <div class="topActions"><button class="miniBtn" id="themeToggle" type="button">Mørk tilstand</button><button class="miniBtn" id="installBtn" type="button">Installér som app</button></div>
   </section>
 
   <section id="view-home" class="view">
@@ -134,6 +141,14 @@
       <div class="tip"><b>Gør det kort.</b><br>Det vigtigste er mønstret over tid, ikke perfekte noter.</div>
       <div class="tip"><b>Ved akut forværring.</b><br>Brug din aftalte plan/kontaktvej. Appen erstatter ikke behandling eller akut hjælp.</div>
     </div>
+
+    <div class="card">
+      <h2>Privatliv</h2>
+      <div class="tip"><b>Data bliver på din egen enhed.</b><br>Registreringer gemmes kun i browseren på den telefon eller computer, hvor appen bruges.</div>
+      <div class="tip"><b>Ingen automatisk deling.</b><br>Data sendes ikke til behandler, hospital, GitHub eller andre eksterne servere.</div>
+      <div class="tip"><b>Du bestemmer.</b><br>Personalet kan kun se dine registreringer, hvis du selv viser skærmen eller deler en rapport.</div>
+    </div>
+
   </section>
 
   <section id="view-register" class="view hidden">
@@ -225,7 +240,12 @@
     <div class="card dataPanel">
       <div class="dataHeader">
         <h2>Dine data</h2>
-        <p class="small">Data ligger kun lokalt i denne browser. Sletter du browserdata, skifter telefon eller bruger en anden browser, kan data forsvinde.</p>
+        <p class="small">Data ligger kun lokalt i denne browser på din egen enhed. Data sendes ikke til behandler, hospital, GitHub eller andre servere. Sletter du browserdata, skifter telefon eller bruger en anden browser, kan data forsvinde.</p>
+        <div class="installNote">
+          <b>Installér som app</b>
+          <p class="small" style="margin:6px 0 0">Når siden åbnes fra GitHub Pages, kan den installeres som app på telefonen. Android/Chrome eller Edge: brug knappen “Installér som app” eller browsermenuen. iPhone/Safari: Del-knappen → Føj til hjemmeskærm.</p>
+        </div>
+
       </div>
 
       <div class="dataStats">
@@ -274,7 +294,7 @@
   </section>
 
 
-  <p class="footerNote">Version 1.7 månedlig rapport lokal prototype. Ikke et diagnostisk værktøj og ikke erstatning for behandling.</p>
+  <p class="footerNote">Version 2.0 PWA lokal prototype. Ikke et diagnostisk værktøj og ikke erstatning for behandling.</p>
 </div>
 <div id="infoModal" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
   <div class="modal">
@@ -435,7 +455,36 @@ window.addEventListener('resize',refreshCharts); applyTheme(); if('serviceWorker
     const energySeries = s.mood.map(x=>({date:danskDato(x.date), y:Number(x.energy)})).filter(x=>!Number.isNaN(x.y));
     const moodRows = s.mood.map(x=>'<tr><td>'+esc(danskDato(x.date))+'</td><td>'+esc(x.mood)+'</td><td>'+esc(moodLabel(x.mood))+'</td><td>'+esc(x.anxiety)+'</td><td>'+esc(x.energy)+'</td><td>'+esc(x.irritability)+'</td><td>'+esc(x.sleepHours ?? '')+'</td><td>'+esc(x.medicine ?? '')+'</td><td>'+esc(x.note ?? '')+'</td></tr>').join('');
     const sleepRows = s.sleep.map(x=>'<tr><td>'+esc(danskDato(x.date))+'</td><td>'+esc(x.quality ?? '')+'</td><td>'+esc(x.bedtime ?? '')+'</td><td>'+esc(x.sleepTime ?? '')+'</td><td>'+esc(x.wakeTime ?? '')+'</td><td>'+esc(x.getupTime ?? '')+'</td><td>'+esc(x.awakenings ?? '')+'</td><td>'+esc(x.awakeMinutes ?? '')+'</td><td>'+esc(x.caffeine ?? '')+'</td><td>'+esc(x.alcohol ?? '')+'</td><td>'+esc(x.nap ?? '')+'</td><td>'+esc(x.screen ?? '')+'</td><td>'+esc(x.beforeBed ?? '')+'</td></tr>').join('');
-    return '<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stemning og søvn - rapport</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#172033}main{max-width:980px;margin:auto}.card{background:white;border:1px solid #e5e7eb;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 10px 25px rgba(15,23,42,.06)}h1{margin:0 0 6px;font-size:30px}h2{margin:0 0 12px;font-size:20px}p{color:#475569}table{width:100%;border-collapse:collapse;font-size:13px;background:white}th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;vertical-align:top}th{background:#ecfeff;color:#164e63}tr:nth-child(even) td{background:#f8fafc}.scroll{overflow-x:auto}.muted{font-size:13px;color:#64748b}@media print{body{background:white;margin:0}.card{box-shadow:none;break-inside:avoid}}</style></head><body><main><div class="card"><h1>Stemning & Søvn - rapport</h1><p>Eksporteret '+esc(new Date().toLocaleDateString('da-DK'))+'. Data er fra patientens lokale app og er ikke hentet fra server.</p></div><div class="card">'+svgChart('Stemningsleje over tid', moodSeries, {min:-3,max:3,color:'#0f766e'})+'</div><div class="card">'+svgChart('Søvn i timer over tid', sleepSeries, {min:0,max:12,color:'#2563eb'})+'</div><div class="card">'+svgChart('Angst 0-3 over tid', anxietySeries, {min:0,max:3,color:'#dc2626'})+'</div><div class="card">'+svgChart('Energi 0-10 over tid', energySeries, {min:0,max:10,color:'#d97706'})+'</div><div class="card"><h2>Daglige stemningsregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Score</th><th>Tekst</th><th>Angst</th><th>Energi</th><th>Irritabilitet</th><th>Søvn timer</th><th>Medicin</th><th>Note</th></tr></thead><tbody>'+(moodRows || '<tr><td colspan="9">Ingen data</td></tr>')+'</tbody></table></div></div><div class="card"><h2>Søvnregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Kvalitet</th><th>Sengetid</th><th>Faldt i søvn</th><th>Vågnede</th><th>Stod op</th><th>Opvågninger</th><th>Vågen min.</th><th>Koffein efter 15</th><th>Alkohol</th><th>Lur</th><th>Skærm</th><th>Før sengetid</th></tr></thead><tbody>'+(sleepRows || '<tr><td colspan="13">Ingen data</td></tr>')+'</tbody></table></div></div></main></body></html>';
+    return '<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stemning og søvn - rapport</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#172033}main{max-width:980px;margin:auto}.card{background:white;border:1px solid #e5e7eb;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 10px 25px rgba(15,23,42,.06)}h1{margin:0 0 6px;font-size:30px}h2{margin:0 0 12px;font-size:20px}p{color:#475569}table{width:100%;border-collapse:collapse;font-size:13px;background:white}th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;vertical-align:top}th{background:#ecfeff;color:#164e63}tr:nth-child(even) td{background:#f8fafc}.scroll{overflow-x:auto}.muted{font-size:13px;color:#64748b}@media print{body{background:white;margin:0}.card{box-shadow:none;break-inside:avoid}}
+    .installNote{border:1px solid rgba(15,118,110,.16);background:rgba(236,253,245,.55);border-radius:20px;padding:14px;margin-top:12px}
+
+</style></head><body><main><div class="card"><h1>Stemning & Søvn - rapport</h1><p>Eksporteret '+esc(new Date().toLocaleDateString('da-DK'))+'. Data er fra patientens lokale app og er ikke hentet fra server.</p></div><div class="card">'+svgChart('Stemningsleje over tid', moodSeries, {min:-3,max:3,color:'#0f766e'})+'</div><div class="card">'+svgChart('Søvn i timer over tid', sleepSeries, {min:0,max:12,color:'#2563eb'})+'</div><div class="card">'+svgChart('Angst 0-3 over tid', anxietySeries, {min:0,max:3,color:'#dc2626'})+'</div><div class="card">'+svgChart('Energi 0-10 over tid', energySeries, {min:0,max:10,color:'#d97706'})+'</div><div class="card"><h2>Daglige stemningsregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Score</th><th>Tekst</th><th>Angst</th><th>Energi</th><th>Irritabilitet</th><th>Søvn timer</th><th>Medicin</th><th>Note</th></tr></thead><tbody>'+(moodRows || '<tr><td colspan="9">Ingen data</td></tr>')+'</tbody></table></div></div><div class="card"><h2>Søvnregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Kvalitet</th><th>Sengetid</th><th>Faldt i søvn</th><th>Vågnede</th><th>Stod op</th><th>Opvågninger</th><th>Vågen min.</th><th>Koffein efter 15</th><th>Alkohol</th><th>Lur</th><th>Skærm</th><th>Før sengetid</th></tr></thead><tbody>'+(sleepRows || '<tr><td colspan="13">Ingen data</td></tr>')+'</tbody></table></div></div></main>
+<script>
+(function(){
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'inline-flex';
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async function(){
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        alert('Android/Chrome eller Edge: brug browsermenuen og vælg “Installér app” eller “Føj til startskærm”. iPhone/Safari: brug Del-knappen og vælg “Føj til hjemmeskærm”.');
+      }
+    });
+  }
+})();
+</script>
+
+</body></html>';
   }
   function exportReportFixed(){ downloadText('stemning-og-soevn-rapport-med-grafer-' + stampDK() + '.html', reportHtmlFixed(), 'text/html;charset=utf-8'); }
   function currentMonthKey(){ return new Date().toISOString().slice(0,7); }
@@ -455,6 +504,32 @@ window.addEventListener('resize',refreshCharts); applyTheme(); if('serviceWorker
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireExports);
   else wireExports();
+})();
+</script>
+
+
+<script>
+(function(){
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.style.display = 'inline-flex';
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async function(){
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        alert('Android/Chrome eller Edge: brug browsermenuen og vælg “Installér app” eller “Føj til startskærm”. iPhone/Safari: brug Del-knappen og vælg “Føj til hjemmeskærm”.');
+      }
+    });
+  }
 })();
 </script>
 
