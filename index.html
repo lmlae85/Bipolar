@@ -115,7 +115,7 @@
   <section class="hero">
     <h1 class="title">Stemning & Søvn</h1>
     <p class="sub">Et simpelt registreringsværktøj. Data gemmes kun lokalt på din egen telefon eller computer. Oplysninger sendes ikke til behandler, hospital, GitHub eller andre servere. Du vælger selv, om du vil vise eller dele dine registreringer.</p>
-    <div class="topActions"><button class="miniBtn" id="themeToggle" type="button">Mørk tilstand</button><button class="miniBtn" id="installBtn" type="button">Installér som app</button></div>
+    <div class="topActions"><button class="miniBtn" id="themeToggle" type="button">Mørk tilstand</button><button class="miniBtn" id="installBtn" type="button">📱 Føj til hjemmeskærm</button></div>
   </section>
 
   <section id="view-home" class="view">
@@ -172,6 +172,7 @@
       <div class="grid">
         <div><label>Dato</label><input id="sleepDate" type="date" required></div>
         <div><label class="labelHelp">Søvnkvalitet 1-5<button class="infoBtn" type="button" data-info="soevnkvalitet" aria-label="Mere info om søvnkvalitet">?</button></label><select id="sleepQuality"><option value="">Vælg</option><option value="1">1 - uden hvile</option><option value="2">2</option><option value="3">3 - nogenlunde</option><option value="4">4</option><option value="5">5 - god</option></select></div>
+        <div><label class="labelHelp">Sovemedicin / medicin brugt til søvn<button class="infoBtn" type="button" data-info="sleepMedication" aria-label="Mere info om sovemedicin">?</button></label><select id="sleepMedication"><option selected>Nej / ingen</option><option>Quetiapin</option><option>Zopiclon</option><option>Melatonin</option><option>Olanzapin</option><option>Andet</option></select></div>
         <div><label>Jeg lagde mig kl.</label><input id="bedtime" type="time"></div>
         <div><label>Faldt i søvn kl.</label><input id="sleepTime" type="time"></div>
         <div><label>Vågnede kl.</label><input id="wakeTime" type="time"></div>
@@ -240,8 +241,8 @@
         <h2>Dine data</h2>
         <p class="small">Data ligger kun lokalt i denne browser på din egen enhed. Data sendes ikke til behandler, hospital, GitHub eller andre servere. Sletter du browserdata, skifter telefon eller bruger en anden browser, kan data forsvinde.</p>
         <div class="installNote">
-          <b>Installér som app</b>
-          <p class="small" style="margin:6px 0 0">Android/Chrome eller Edge: brug knappen “Installér som app” eller browsermenuen. iPhone/Safari: Del-knappen → Føj til hjemmeskærm.</p>
+          <b>Føj til hjemmeskærm</b>
+          <p class="small" style="margin:6px 0 0">Android/Chrome eller Edge: brug knappen “📱 Føj til hjemmeskærm” eller browsermenuen. iPhone/Safari: Del-knappen → Føj til hjemmeskærm.</p>
         </div>
 
       </div>
@@ -292,7 +293,7 @@
   </section>
 
 
-  <p class="footerNote">Version 2.0 PWA lokal prototype. Ikke et diagnostisk værktøj og ikke erstatning for behandling.</p>
+  <p class="footerNote">Version 2.1 PWA lokal prototype. Ikke et diagnostisk værktøj og ikke erstatning for behandling.</p>
 </div>
 <div id="infoModal" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
   <div class="modal">
@@ -324,6 +325,7 @@ const infoTexts={
   angst:{title:'Angst / indre uro',html:`<p>Angst kan optræde sammen med både depression, mani eller i neutrale perioder. Det kan også være et tidligt tegn på ændring i tilstanden.</p><ul><li><b>0:</b> ingen angst</li><li><b>1:</b> lettere ængstelighed uden større påvirkning</li><li><b>2:</b> konstant uro eller panikanfald, påvirker hverdagen</li><li><b>3:</b> udtalt angst, svært at foretage sig ret meget</li></ul><p>Angst kan vise sig fysisk, fx hjertebanken, rysten, sved eller spænding.</p>`},
   energi:{title:'Energi',html:`<p>Energi kan være vigtig at følge sammen med stemning og søvn. Stigende energi sammen med mindre søvn kan være relevant ved begyndende hypomani/mani.</p><p>Lav energi sammen med nedtrykthed og øget søvnbehov kan være relevant ved depressive symptomer.</p><p>Skalaen 0-10 er subjektiv: 0 er ingen energi, 10 er ekstremt høj energi.</p>`},
   irritabilitet:{title:'Irritabilitet',html:`<p>Irritabilitet kan være et vigtigt tegn ved både løftet stemningsleje, blandede tilstande, søvnmangel og belastning.</p><p>Registrér hvor udtalt irritabiliteten har været samlet set i dag.</p><p>0 er ingen irritabilitet. 10 er meget kraftig irritabilitet.</p>`},
+  sleepMedication:{title:'Sovemedicin / medicin brugt til søvn',html:`<p>Vælg kun sovemedicin eller medicin brugt til søvn den pågældende dag.</p><p>Hvis ingen sovemedicin er taget, skal feltet stå på <b>Nej / ingen</b>.</p>`},
   medicin:{title:'Medicin',html:`<p>Registrér kun om medicinen er taget i dag. Appen skal ikke erstatte medicinliste eller journal.</p><p>Hvis du har glemt medicin, ændret dosis eller taget pn-medicin, kan det skrives kort i noten eller drøftes med behandler efter aftalt plan.</p>`},
   timerSoevn:{title:'Antal timers søvn',html:`<p>Angiv cirka hvor mange timer du samlet set har sovet. Hvis søvnen har været afbrudt, så prøv at vurdere den samlede søvntid.</p><p>Ved bipolar lidelse kan ændret søvn være et vigtigt signal. Mønstret over flere dage er vigtigere end et perfekt tal.</p>`},
   noter:{title:'Kort note',html:`<p>Noter kan bruges til korte forhold, der kan have påvirket stemningen, fx konflikt, ekstra pres, alkohol, rejse, sygdom, økonomi, arbejde eller særlige begivenheder.</p><p>Skriv kort og klinisk brugbart. Undgå navne, CPR, adresse og meget private detaljer.</p><p>Det er ofte først over tid, at mønstre bliver tydelige.</p>`},
@@ -357,7 +359,7 @@ $('infoModal').addEventListener('click',e=>{if(e.target.id==='infoModal') closeI
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeInfo();});
  function show(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden')); $('view-'+name).classList.remove('hidden'); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===name)); refreshCharts();}
 $('moodForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.mood,{date:$('date').value,mood:+$('mood').value,anxiety:+$('anxiety').value,energy:+$('energy').value,irritability:+$('irritability').value,sleepHours:$('sleepHours').value?+$('sleepHours').value:null,medicine:$('medicine').value,note:$('note').value.trim()}); save(); alert('Registrering gemt');});
-$('sleepForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.sleep,{date:$('sleepDate').value,quality:$('sleepQuality').value?+$('sleepQuality').value:null,bedtime:$('bedtime').value,sleepTime:$('sleepTime').value,wakeTime:$('wakeTime').value,getupTime:$('getupTime').value,awakenings:$('awakenings').value?+$('awakenings').value:null,awakeMinutes:$('awakeMinutes').value?+$('awakeMinutes').value:null,caffeine:$('caffeine').value,alcohol:$('alcohol').value,nap:$('nap').value,screen:$('screen').value,beforeBed:$('beforeBed').value.trim()}); save(); alert('Søvnregistrering gemt');});
+$('sleepForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.sleep,{date:$('sleepDate').value,quality:$('sleepQuality').value?+$('sleepQuality').value:null,bedtime:$('bedtime').value,sleepTime:$('sleepTime').value,wakeTime:$('wakeTime').value,getupTime:$('getupTime').value,awakenings:$('awakenings').value?+$('awakenings').value:null,awakeMinutes:$('awakeMinutes').value?+$('awakeMinutes').value:null,caffeine:$('caffeine').value,alcohol:$('alcohol').value,nap:$('nap').value,screen:$('screen').value,sleepMedication:$('sleepMedication').value,beforeBed:$('beforeBed').value.trim()}); save(); alert('Søvnregistrering gemt');});
 $('clearMoodForm').onclick=()=>{$('moodForm').reset(); initDates(); ['mood','anxiety','energy','irritability'].forEach(id=>$(id).dispatchEvent(new Event('input')))};
 function refresh(){const lastMood=state.mood.at(-1), lastSleep=state.sleep.at(-1); $('statMood').textContent=lastMood? `${lastMood.mood} (${moodLabels[lastMood.mood]})`:'–'; $('statSleep').textContent=lastMood?.sleepHours? lastMood.sleepHours+' t':(lastSleep?.quality? 'Kval. '+lastSleep.quality:'–'); $('statDays').textContent=state.mood.length; if($('moodCount')) $('moodCount').textContent=state.mood.length+' stemninger'; if($('sleepCount')) $('sleepCount').textContent=state.sleep.length+' søvnregistreringer'; updateWarnings(); renderEntries(); refreshCharts();}
 function updateWarnings(){const w=$('warningBox'); const last3=state.mood.slice(-3); const lowSleep=last3.length===3 && last3.every(x=>x.sleepHours!==null && x.sleepHours<5); const highEnergy=last3.length===3 && last3.every(x=>x.energy>=7); const risingMood=last3.length===3 && last3[2].mood>last3[0].mood; if(lowSleep&&highEnergy&&risingMood){w.classList.remove('hidden'); w.innerHTML='<b>Vær opmærksom:</b> Under 5 timers søvn flere dage, høj energi og stigende stemning. Det kan være værd at drøfte med behandler eller bruge din forebyggelsesplan.'} else w.classList.add('hidden');}
@@ -416,9 +418,9 @@ window.addEventListener('resize',refreshCharts); applyTheme(); if('serviceWorker
   }
   function exportCsvFixed(){
     const s = safeState();
-    const rows = [['Registreringstype','Dato','Stemningsleje score','Stemningsleje tekst','Angst 0-3','Energi 0-10','Irritabilitet 0-10','Antal timers søvn','Medicin taget','Note','Søvnkvalitet 1-5','Sengetid','Faldt i søvn kl.','Vågnede kl.','Stod op kl.','Antal opvågninger','Vågen tid i minutter','Koffein efter kl. 15','Alkohol','Lur i dagtimerne','Skærm sidste time','Aktivitet før sengetid']];
-    s.mood.forEach(function(x){ rows.push(['Daglig stemningsregistrering',danskDato(x.date),x.mood??'',moodLabel(x.mood),x.anxiety??'',x.energy??'',x.irritability??'',x.sleepHours??'',x.medicine??'',x.note??'','','','','','','','','','','','','']); });
-    s.sleep.forEach(function(x){ rows.push(['Søvnregistrering',danskDato(x.date),'','','','','','','','',x.quality??'',x.bedtime??'',x.sleepTime??'',x.wakeTime??'',x.getupTime??'',x.awakenings??'',x.awakeMinutes??'',x.caffeine??'',x.alcohol??'',x.nap??'',x.screen??'',x.beforeBed??'']); });
+    const rows = [['Registreringstype','Dato','Stemningsleje score','Stemningsleje tekst','Angst 0-3','Energi 0-10','Irritabilitet 0-10','Antal timers søvn','Medicin taget','Note','Søvnkvalitet 1-5','Sovemedicin / medicin brugt til søvn','Sengetid','Faldt i søvn kl.','Vågnede kl.','Stod op kl.','Antal opvågninger','Vågen tid i minutter','Koffein efter kl. 15','Alkohol','Lur i dagtimerne','Skærm sidste time','Aktivitet før sengetid']];
+    s.mood.forEach(function(x){ rows.push(['Daglig stemningsregistrering',danskDato(x.date),x.mood??'',moodLabel(x.mood),x.anxiety??'',x.energy??'',x.irritability??'',x.sleepHours??'',x.medicine??'',x.note??'','','','','','','','','','','','','','']); });
+    s.sleep.forEach(function(x){ rows.push(['Søvnregistrering',danskDato(x.date),'','','','','','','','',x.quality??'',x.sleepMedication??'Nej / ingen',x.bedtime??'',x.sleepTime??'',x.wakeTime??'',x.getupTime??'',x.awakenings??'',x.awakeMinutes??'',x.caffeine??'',x.alcohol??'',x.nap??'',x.screen??'',x.beforeBed??'']); });
     const csv = '\ufeff' + rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';')).join('\n');
     downloadText('stemning-og-soevn-data-' + stampDK() + '.csv', csv, 'text/csv;charset=utf-8');
   }
@@ -450,8 +452,8 @@ window.addEventListener('resize',refreshCharts); applyTheme(); if('serviceWorker
     const anxietySeries = s.mood.map(x=>({date:danskDato(x.date), y:Number(x.anxiety)})).filter(x=>!Number.isNaN(x.y));
     const energySeries = s.mood.map(x=>({date:danskDato(x.date), y:Number(x.energy)})).filter(x=>!Number.isNaN(x.y));
     const moodRows = s.mood.map(x=>'<tr><td>'+esc(danskDato(x.date))+'</td><td>'+esc(x.mood)+'</td><td>'+esc(moodLabel(x.mood))+'</td><td>'+esc(x.anxiety)+'</td><td>'+esc(x.energy)+'</td><td>'+esc(x.irritability)+'</td><td>'+esc(x.sleepHours ?? '')+'</td><td>'+esc(x.medicine ?? '')+'</td><td>'+esc(x.note ?? '')+'</td></tr>').join('');
-    const sleepRows = s.sleep.map(x=>'<tr><td>'+esc(danskDato(x.date))+'</td><td>'+esc(x.quality ?? '')+'</td><td>'+esc(x.bedtime ?? '')+'</td><td>'+esc(x.sleepTime ?? '')+'</td><td>'+esc(x.wakeTime ?? '')+'</td><td>'+esc(x.getupTime ?? '')+'</td><td>'+esc(x.awakenings ?? '')+'</td><td>'+esc(x.awakeMinutes ?? '')+'</td><td>'+esc(x.caffeine ?? '')+'</td><td>'+esc(x.alcohol ?? '')+'</td><td>'+esc(x.nap ?? '')+'</td><td>'+esc(x.screen ?? '')+'</td><td>'+esc(x.beforeBed ?? '')+'</td></tr>').join('');
-    return '<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stemning og søvn - rapport</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#172033}main{max-width:980px;margin:auto}.card{background:white;border:1px solid #e5e7eb;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 10px 25px rgba(15,23,42,.06)}h1{margin:0 0 6px;font-size:30px}h2{margin:0 0 12px;font-size:20px}p{color:#475569}table{width:100%;border-collapse:collapse;font-size:13px;background:white}th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;vertical-align:top}th{background:#ecfeff;color:#164e63}tr:nth-child(even) td{background:#f8fafc}.scroll{overflow-x:auto}.muted{font-size:13px;color:#64748b}@media print{body{background:white;margin:0}.card{box-shadow:none;break-inside:avoid}}</style></head><body><main><div class="card"><h1>Stemning & Søvn - rapport</h1><p>Eksporteret '+esc(new Date().toLocaleDateString('da-DK'))+'. Data er fra patientens lokale app og er ikke hentet fra server.</p></div><div class="card">'+svgChart('Stemningsleje over tid', moodSeries, {min:-3,max:3,color:'#0f766e'})+'</div><div class="card">'+svgChart('Søvn i timer over tid', sleepSeries, {min:0,max:12,color:'#2563eb'})+'</div><div class="card">'+svgChart('Angst 0-3 over tid', anxietySeries, {min:0,max:3,color:'#dc2626'})+'</div><div class="card">'+svgChart('Energi 0-10 over tid', energySeries, {min:0,max:10,color:'#d97706'})+'</div><div class="card"><h2>Daglige stemningsregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Score</th><th>Tekst</th><th>Angst</th><th>Energi</th><th>Irritabilitet</th><th>Søvn timer</th><th>Medicin</th><th>Note</th></tr></thead><tbody>'+(moodRows || '<tr><td colspan="9">Ingen data</td></tr>')+'</tbody></table></div></div><div class="card"><h2>Søvnregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Kvalitet</th><th>Sengetid</th><th>Faldt i søvn</th><th>Vågnede</th><th>Stod op</th><th>Opvågninger</th><th>Vågen min.</th><th>Koffein efter 15</th><th>Alkohol</th><th>Lur</th><th>Skærm</th><th>Før sengetid</th></tr></thead><tbody>'+(sleepRows || '<tr><td colspan="13">Ingen data</td></tr>')+'</tbody></table></div></div></main></body></html>';
+    const sleepRows = s.sleep.map(x=>'<tr><td>'+esc(danskDato(x.date))+'</td><td>'+esc(x.quality ?? '')+'</td><td>'+esc(x.sleepMedication ?? 'Nej / ingen')+'</td><td>'+esc(x.bedtime ?? '')+'</td><td>'+esc(x.sleepTime ?? '')+'</td><td>'+esc(x.wakeTime ?? '')+'</td><td>'+esc(x.getupTime ?? '')+'</td><td>'+esc(x.awakenings ?? '')+'</td><td>'+esc(x.awakeMinutes ?? '')+'</td><td>'+esc(x.caffeine ?? '')+'</td><td>'+esc(x.alcohol ?? '')+'</td><td>'+esc(x.nap ?? '')+'</td><td>'+esc(x.screen ?? '')+'</td><td>'+esc(x.beforeBed ?? '')+'</td></tr>').join('');
+    return '<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stemning og søvn - rapport</title><style>body{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;margin:24px;background:#f8fafc;color:#172033}main{max-width:980px;margin:auto}.card{background:white;border:1px solid #e5e7eb;border-radius:22px;padding:18px;margin:14px 0;box-shadow:0 10px 25px rgba(15,23,42,.06)}h1{margin:0 0 6px;font-size:30px}h2{margin:0 0 12px;font-size:20px}p{color:#475569}table{width:100%;border-collapse:collapse;font-size:13px;background:white}th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;vertical-align:top}th{background:#ecfeff;color:#164e63}tr:nth-child(even) td{background:#f8fafc}.scroll{overflow-x:auto}.muted{font-size:13px;color:#64748b}@media print{body{background:white;margin:0}.card{box-shadow:none;break-inside:avoid}}</style></head><body><main><div class="card"><h1>Stemning & Søvn - rapport</h1><p>Eksporteret '+esc(new Date().toLocaleDateString('da-DK'))+'. Data er fra patientens lokale app og er ikke hentet fra server.</p></div><div class="card">'+svgChart('Stemningsleje over tid', moodSeries, {min:-3,max:3,color:'#0f766e'})+'</div><div class="card">'+svgChart('Søvn i timer over tid', sleepSeries, {min:0,max:12,color:'#2563eb'})+'</div><div class="card">'+svgChart('Angst 0-3 over tid', anxietySeries, {min:0,max:3,color:'#dc2626'})+'</div><div class="card">'+svgChart('Energi 0-10 over tid', energySeries, {min:0,max:10,color:'#d97706'})+'</div><div class="card"><h2>Daglige stemningsregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Score</th><th>Tekst</th><th>Angst</th><th>Energi</th><th>Irritabilitet</th><th>Søvn timer</th><th>Medicin</th><th>Note</th></tr></thead><tbody>'+(moodRows || '<tr><td colspan="9">Ingen data</td></tr>')+'</tbody></table></div></div><div class="card"><h2>Søvnregistreringer</h2><div class="scroll"><table><thead><tr><th>Dato</th><th>Kvalitet</th><th>Sovemedicin</th><th>Sengetid</th><th>Faldt i søvn</th><th>Vågnede</th><th>Stod op</th><th>Opvågninger</th><th>Vågen min.</th><th>Koffein efter 15</th><th>Alkohol</th><th>Lur</th><th>Skærm</th><th>Før sengetid</th></tr></thead><tbody>'+(sleepRows || '<tr><td colspan="14">Ingen data</td></tr>')+'</tbody></table></div></div></main></body></html>';
   }
   function exportReportFixed(){ downloadText('stemning-og-soevn-rapport-med-grafer-' + stampDK() + '.html', reportHtmlFixed(), 'text/html;charset=utf-8'); }
   function currentMonthKey(){ return new Date().toISOString().slice(0,7); }
@@ -475,28 +477,95 @@ window.addEventListener('resize',refreshCharts); applyTheme(); if('serviceWorker
 </script>
 
 
+
+
+
 <script>
 (function(){
   let deferredPrompt = null;
   const installBtn = document.getElementById('installBtn');
 
+  function isStandalone() {
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true
+    );
+  }
+
+  function updateInstallButton() {
+    if (!installBtn) return;
+    installBtn.style.display = isStandalone() ? 'none' : 'inline-flex';
+  }
+
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     deferredPrompt = e;
-    if (installBtn) installBtn.style.display = 'inline-flex';
+    updateInstallButton();
+  });
+
+  window.addEventListener('appinstalled', function(){
+    if (installBtn) installBtn.style.display = 'none';
+    deferredPrompt = null;
   });
 
   if (installBtn) {
     installBtn.addEventListener('click', async function(){
+      if (isStandalone()) {
+        installBtn.style.display = 'none';
+        return;
+      }
+
       if (deferredPrompt) {
         deferredPrompt.prompt();
         await deferredPrompt.userChoice;
         deferredPrompt = null;
+        updateInstallButton();
       } else {
         alert('Android/Chrome eller Edge: brug browsermenuen og vælg “Installér app” eller “Føj til startskærm”. iPhone/Safari: brug Del-knappen og vælg “Føj til hjemmeskærm”.');
       }
     });
   }
+
+  window.addEventListener('load', updateInstallButton);
+  updateInstallButton();
+})();
+</script>
+
+
+<script>
+(function(){
+  const deleteBtn = document.getElementById('deleteAll');
+  if (deleteBtn && !deleteBtn.dataset.boundDelete) {
+    deleteBtn.dataset.boundDelete = 'true';
+    deleteBtn.addEventListener('click', function(){
+      const ok = confirm('Vil du slette alle registreringer fra denne browser? Det kan ikke fortrydes.');
+      if (!ok) return;
+      localStorage.removeItem('moodSleepApp.v1');
+      location.reload();
+    });
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  function currentMonthKey(){ return new Date().toISOString().slice(0,7); }
+  function updateMonthStatus(){
+    const el = document.getElementById('monthReminderStatus');
+    if (!el) return;
+    const dismissed = localStorage.getItem('moodSleepApp.dismissedMonthReport') === currentMonthKey();
+    el.textContent = dismissed ? 'Påmindelsen er udsat for denne måned.' : 'Tip: Lav rapporten før konsultation eller ved månedsskifte.';
+  }
+  const dismiss = document.getElementById('dismissMonthReminder');
+  if (dismiss && !dismiss.dataset.boundDismiss) {
+    dismiss.dataset.boundDismiss = 'true';
+    dismiss.addEventListener('click', function(){
+      localStorage.setItem('moodSleepApp.dismissedMonthReport', currentMonthKey());
+      updateMonthStatus();
+    });
+  }
+  updateMonthStatus();
 })();
 </script>
 
