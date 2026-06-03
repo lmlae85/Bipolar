@@ -106,6 +106,18 @@
     @media(max-width:520px){.dataStats,.dataActions{grid-template-columns:1fr} .dataHeader,.dataSection{padding-left:16px;padding-right:16px} .dataStats{padding-left:16px;padding-right:16px}}
 
     .installNote{border:1px solid rgba(15,118,110,.16);background:rgba(236,253,245,.55);border-radius:20px;padding:14px;margin-top:12px}
+
+    .welcomeBackdrop{position:fixed;inset:0;background:rgba(15,23,42,.62);backdrop-filter:blur(10px);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px}
+    .welcomeBackdrop.hidden{display:none}
+    .welcomeBox{width:min(680px,100%);max-height:88vh;overflow:auto;background:var(--card-solid);color:var(--text);border:1px solid rgba(148,163,184,.25);border-radius:30px;box-shadow:0 35px 100px rgba(15,23,42,.36);padding:22px}
+    .welcomeBox h2{margin:0 0 10px;font-size:25px;letter-spacing:-.03em;color:var(--teal)}
+    .welcomeBox p{margin:0 0 12px;line-height:1.45;color:var(--text)}
+    .welcomeList{display:grid;gap:10px;margin:16px 0}
+    .welcomeItem{border:1px solid rgba(15,118,110,.14);background:rgba(236,253,245,.55);border-radius:18px;padding:12px 13px;line-height:1.35}
+    .welcomeItem b{color:var(--teal-dark)}
+    .welcomeActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    body.dark .welcomeItem{background:rgba(45,212,191,.10);border-color:rgba(45,212,191,.22)}
+
 </style>
 </head>
 <body>
@@ -229,6 +241,12 @@
       <p class="small"><b>-3</b> svær depression · <b>-2</b> moderat depression · <b>-1</b> let depression · <b>0</b> neutral · <b>+1</b> let mani/hypomani · <b>+2</b> moderat mani · <b>+3</b> svær mani.</p>
       <p class="small">Ved blandede symptomer kan notefeltet bruges kort, men undgå navne og følsomme detaljer.</p>
     </div>
+
+    <div class="card"><h2>Ophavsret</h2>
+      <p class="small">© 2026 Lars Møller Andersen. Alle rettigheder forbeholdes.</p>
+      <p class="small">Stemning & Søvn er udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn. Appen må ikke videredistribueres eller modificeres uden ophavsmandens tilladelse.</p>
+    </div>
+
   </section>
 
   <section id="view-data" class="view hidden">
@@ -296,8 +314,28 @@
         </button>
       </div>
     </div>
-    <div class="footerNote">App-version: 1.1.0 (Lokal offline-først kørsel). Udviklet som et uafhængigt hjælpemiddel til strukturering af egenomsorg.</div>
+    <div class="footerNote">Stemning & Søvn v1.2.0<br>© 2026 Lars Møller Andersen<br>Alle rettigheder forbeholdes.<br>Udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn.</div>
   </section>
+</div>
+
+
+<div id="welcomeModal" class="welcomeBackdrop hidden" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="welcomeBox">
+    <h2 id="welcomeTitle">Vigtigt før du starter</h2>
+    <p>Denne app er et frivilligt hjælpemiddel til registrering af stemning og søvn.</p>
+
+    <div class="welcomeList">
+      <div class="welcomeItem"><b>Lokal lagring:</b><br>Registreringer gemmes kun på din egen telefon, tablet eller computer.</div>
+      <div class="welcomeItem"><b>Ingen automatisk deling:</b><br>Oplysninger sendes ikke til behandler, hospital, GitHub eller andre servere.</div>
+      <div class="welcomeItem"><b>Du bestemmer:</b><br>Du vælger selv, om du vil vise eller dele dine registreringer.</div>
+      <div class="welcomeItem"><b>Ikke akut hjælp:</b><br>Appen er et støtte- og samtaleværktøj. Den erstatter ikke behandling, akut hjælp eller kontakt til sundhedspersonale.</div>
+    </div>
+
+    <p class="small">Ved at fortsætte bekræfter du, at du har læst og forstået ovenstående.</p>
+    <div class="welcomeActions">
+      <button class="btn" type="button" id="acceptWelcome">Jeg forstår</button>
+    </div>
+  </div>
 </div>
 
 <div id="infoModal" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
@@ -318,7 +356,6 @@
 const KEY='moodSleepApp.v1';
 const moodLabels={"-3":"Svær depression","-2":"Moderat depression","-1":"Let depression","0":"Neutral","1":"Let mani/hypomani","2":"Moderat mani","3":"Svær mani"};
 
-// REWARD & COPYRIGHT PROTECTION: FULDSTÆNDIG SPANNY NY-OMFORMULERET TEKSTSTRUKTUR
 const infoTexts={
   hvorforRegistrere:{title:'Hvorfor registrere?',html:`<p>Daglig registrering gør det lettere at huske, hvordan de seneste dage og uger faktisk har været.</p><p>Formålet er at kunne se mønstre mellem stemning, angst/indre uro, søvn, energi, medicin og belastninger. Det kan give et bedre udgangspunkt for samtalen med behandler.</p><p>Det vigtigste er ikke perfekte tal, men at registreringen bliver kort og regelmæssig.</p>`},
   stemning:{title:'Stemningsleje',html:`<p>Vælg det niveau, der passer bedst på dagen samlet set. Skalaen går fra depression til mani/hypomani.</p><ul><li><b>-3:</b> svær depression</li><li><b>-2:</b> moderat depression</li><li><b>-1:</b> let depression</li><li><b>0:</b> neutralt stemningsleje</li><li><b>+1:</b> let mani/hypomani</li><li><b>+2:</b> moderat mani</li><li><b>+3:</b> svær mani</li></ul><p>Hvis maniske og depressive symptomer optræder samtidig eller skifter i løbet af dagen, kan det skrives i noten.</p>`},
@@ -677,5 +714,43 @@ show('home');
   }
 })();
 </script>
+
+<script>
+(function(){
+  const CONSENT_KEY = 'moodSleepApp.welcomeAccepted.v1';
+
+  function showWelcomeModal(){
+    const modal = document.getElementById('welcomeModal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function hideWelcomeModal(){
+    const modal = document.getElementById('welcomeModal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function initWelcome(){
+    const accepted = localStorage.getItem(CONSENT_KEY) === 'yes';
+    const btn = document.getElementById('acceptWelcome');
+
+    if (btn && !btn.dataset.boundWelcome) {
+      btn.dataset.boundWelcome = 'true';
+      btn.addEventListener('click', function(){
+        localStorage.setItem(CONSENT_KEY, 'yes');
+        hideWelcomeModal();
+      });
+    }
+
+    if (!accepted) showWelcomeModal();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWelcome);
+  } else {
+    initWelcome();
+  }
+})();
+</script>
+
 </body>
 </html>
