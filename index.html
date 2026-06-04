@@ -135,6 +135,17 @@
     .editSelectHintOk{color:var(--teal);font-weight:750}
     .editSelectHintWarn{color:var(--amber);font-weight:750}
 
+
+    .updateBackdrop{position:fixed;inset:0;background:rgba(15,23,42,.58);backdrop-filter:blur(10px);z-index:110;display:flex;align-items:center;justify-content:center;padding:18px}
+    .updateBackdrop.hidden{display:none}
+    .updateBox{width:min(620px,100%);background:var(--card-solid);color:var(--text);border:1px solid rgba(148,163,184,.25);border-radius:30px;box-shadow:0 35px 100px rgba(15,23,42,.36);padding:22px}
+    .updateBox h2{margin:0 0 10px;font-size:24px;letter-spacing:-.03em;color:var(--teal)}
+    .updateBox p{margin:0 0 12px;line-height:1.45;color:var(--text)}
+    .versionList{display:grid;gap:10px;margin-top:10px}
+    .versionItem{border:1px solid rgba(15,118,110,.14);background:rgba(236,253,245,.48);border-radius:18px;padding:12px 13px}
+    .versionItem b{color:var(--teal-dark)}
+    body.dark .versionItem{background:rgba(45,212,191,.10);border-color:rgba(45,212,191,.22)}
+
 </style>
 </head>
 <body>
@@ -261,6 +272,18 @@
       <p class="small">Ved blandede symptomer kan notefeltet bruges kort, men undgå navne og følsomme detaljer.</p>
     </div>
 
+    
+    <div class="card"><h2>Version</h2>
+      <p class="small"><b>Aktuel version:</b> 1.5.0</p>
+      <div class="versionList">
+        <div class="versionItem"><b>Version 1.5.0</b><br>Automatisk besked ved ny version og versionshistorik.</div>
+        <div class="versionItem"><b>Version 1.4.0</b><br>Dropdown til redigering af registreringer.</div>
+        <div class="versionItem"><b>Version 1.3.0</b><br>Redigering af tidligere registreringer.</div>
+        <div class="versionItem"><b>Version 1.2.0</b><br>Førstegangs-popup, privatlivstekst og ophavsret.</div>
+        <div class="versionItem"><b>Version 1.1.0</b><br>Rapport, eksport og lokal backup.</div>
+      </div>
+    </div>
+
     <div class="card"><h2>Ophavsret</h2>
       <p class="small">© 2026 Lars Møller Andersen. Alle rettigheder forbeholdes.</p>
       <p class="small">Stemning & Søvn er udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn. Appen må ikke videredistribueres eller modificeres uden ophavsmandens tilladelse.</p>
@@ -360,10 +383,24 @@
         </button>
       </div>
     </div>
-    <div class="footerNote">Stemning & Søvn v1.4.0<br>© 2026 Lars Møller Andersen<br>Alle rettigheder forbeholdes.<br>Udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn.</div>
+    <div class="footerNote">Stemning & Søvn v1.5.0<br>© 2026 Lars Møller Andersen<br>Alle rettigheder forbeholdes.<br>Udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn.</div>
   </section>
 </div>
 
+
+
+<div id="updateModal" class="updateBackdrop hidden" role="dialog" aria-modal="true" aria-labelledby="updateTitle">
+  <div class="updateBox">
+    <h2 id="updateTitle">Ny version tilgængelig</h2>
+    <p>Der ligger en nyere version af Stemning & Søvn online.</p>
+    <p class="small">Dine registreringer bliver liggende lokalt på denne enhed. Opdateringen henter kun den nyeste app-kode.</p>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn" type="button" id="reloadAppBtn">Opdater nu</button>
+      <button class="btn secondary" type="button" id="dismissUpdateBtn">Senere</button>
+    </div>
+    <p class="hint" id="updateVersionText"></p>
+  </div>
+</div>
 
 <div id="welcomeModal" class="welcomeBackdrop hidden" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
   <div class="welcomeBox">
@@ -399,6 +436,7 @@
 </div></nav>
 
 <script>
+const APP_VERSION='1.5.0';
 const KEY='moodSleepApp.v1';
 const moodLabels={"-3":"Svær depression","-2":"Moderat depression","-1":"Let depression","0":"Neutral","1":"Let mani/hypomani","2":"Moderat mani","3":"Svær mani"};
 
@@ -958,6 +996,112 @@ show('home');
     document.addEventListener('DOMContentLoaded', initWelcome);
   } else {
     initWelcome();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  const CURRENT_APP_VERSION = APP_VERSION || '1.5.0';
+  const DISMISSED_UPDATE_KEY = 'moodSleepApp.dismissedUpdateVersion';
+
+  function extractVersionFromHtml(text){
+    const match = text.match(/const\s+APP_VERSION\s*=\s*['"]([^'"]+)['"]/);
+    return match ? match[1] : null;
+  }
+
+  function compareVersions(a, b){
+    const pa = String(a).split('.').map(n => parseInt(n, 10) || 0);
+    const pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
+    const len = Math.max(pa.length, pb.length);
+    for(let i=0;i<len;i++){
+      const da = pa[i] || 0;
+      const db = pb[i] || 0;
+      if(da > db) return 1;
+      if(da < db) return -1;
+    }
+    return 0;
+  }
+
+  function showUpdateModal(newVersion){
+    const dismissed = localStorage.getItem(DISMISSED_UPDATE_KEY);
+    if(dismissed === newVersion) return;
+
+    const modal = document.getElementById('updateModal');
+    const txt = document.getElementById('updateVersionText');
+    if(txt) txt.textContent = 'Din version: ' + CURRENT_APP_VERSION + ' · Ny version: ' + newVersion;
+    if(modal) modal.classList.remove('hidden');
+  }
+
+  async function checkForAppUpdate(){
+    if(location.protocol === 'file:') return;
+
+    try {
+      const url = new URL(location.href);
+      url.searchParams.set('versionCheck', Date.now().toString());
+
+      const res = await fetch(url.toString(), {cache:'no-store'});
+      if(!res.ok) return;
+
+      const latestHtml = await res.text();
+      const latestVersion = extractVersionFromHtml(latestHtml);
+      if(!latestVersion) return;
+
+      if(compareVersions(latestVersion, CURRENT_APP_VERSION) > 0){
+        showUpdateModal(latestVersion);
+      }
+    } catch(e) {
+      // Offline eller cachefejl. Ingen besked nødvendig.
+    }
+  }
+
+  async function forceAppReload(){
+    try {
+      if('serviceWorker' in navigator){
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(reg => reg.unregister()));
+      }
+
+      if('caches' in window){
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+      }
+    } catch(e) {}
+
+    const url = new URL(location.href);
+    url.searchParams.set('updated', Date.now().toString());
+    location.replace(url.toString());
+  }
+
+  function initUpdateUi(){
+    const reloadBtn = document.getElementById('reloadAppBtn');
+    const dismissBtn = document.getElementById('dismissUpdateBtn');
+    const modal = document.getElementById('updateModal');
+
+    if(reloadBtn && !reloadBtn.dataset.boundUpdate){
+      reloadBtn.dataset.boundUpdate = 'true';
+      reloadBtn.addEventListener('click', forceAppReload);
+    }
+
+    if(dismissBtn && !dismissBtn.dataset.boundUpdate){
+      dismissBtn.dataset.boundUpdate = 'true';
+      dismissBtn.addEventListener('click', function(){
+        const txt = document.getElementById('updateVersionText');
+        const match = txt ? txt.textContent.match(/Ny version:\s*([0-9.]+)/) : null;
+        if(match) localStorage.setItem(DISMISSED_UPDATE_KEY, match[1]);
+        if(modal) modal.classList.add('hidden');
+      });
+    }
+
+    checkForAppUpdate();
+    setInterval(checkForAppUpdate, 1000 * 60 * 60 * 6);
+  }
+
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUpdateUi);
+  } else {
+    initUpdateUi();
   }
 })();
 </script>
