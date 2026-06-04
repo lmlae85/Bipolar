@@ -118,6 +118,23 @@
     .welcomeActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
     body.dark .welcomeItem{background:rgba(45,212,191,.10);border-color:rgba(45,212,191,.22)}
 
+
+    .editList{display:grid;gap:10px;margin-top:14px}
+    .editRow{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);background:rgba(255,255,255,.82);border-radius:18px;padding:12px 13px}
+    .editRowText{min-width:0}
+    .editRowText b{display:block;font-size:14px;color:var(--text)}
+    .editRowText span{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .editBtn{border:1px solid rgba(15,118,110,.25);background:rgba(236,253,245,.8);color:#0f766e;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer;white-space:nowrap}
+    .editBtn:active{transform:translateY(1px)}
+    .editModeBanner{border:1px solid rgba(217,119,6,.25);background:#fff7ed;color:#7c2d12;border-radius:18px;padding:12px 13px;margin:0 0 14px;font-size:13px;line-height:1.35}
+    body.dark .editRow{background:rgba(15,23,42,.62);border-color:rgba(148,163,184,.22)}
+    body.dark .editBtn{background:rgba(45,212,191,.12);color:#99f6e4;border-color:rgba(45,212,191,.24)}
+    body.dark .editModeBanner{background:rgba(146,64,14,.25);color:#fed7aa;border-color:rgba(251,191,36,.25)}
+
+
+    .editSelectHintOk{color:var(--teal);font-weight:750}
+    .editSelectHintWarn{color:var(--amber);font-weight:750}
+
 </style>
 </head>
 <body>
@@ -161,6 +178,7 @@
   <section id="view-register" class="view hidden">
     <form id="moodForm" class="card">
       <h2>Dagens registrering</h2>
+      <div id="moodEditBanner" class="editModeBanner hidden">Du redigerer en tidligere stemningsregistrering. Når du gemmer, overskrives registreringen for den valgte dato.</div>
       <div class="grid">
         <div><label>Dato</label><input id="date" type="date" required></div>
         <div><label class="labelHelp">Medicin taget?<button class="infoBtn" type="button" data-info="medicin" aria-label="Mere info om medicin">?</button></label><select id="medicine"><option value="">Ikke angivet</option><option>Ja</option><option>Nej</option></select></div>
@@ -178,6 +196,7 @@
   <section id="view-sleep" class="view hidden">
     <form id="sleepForm" class="card">
       <h2>Søvnskema</h2>
+      <div id="sleepEditBanner" class="editModeBanner hidden">Du redigerer en tidligere søvnregistrering. Når du gemmer, overskrives registreringen for den valgte dato.</div>
       <div class="grid">
         <div><label>Dato</label><input id="sleepDate" type="date" required></div>
         <div><label class="labelHelp">Søvnkvalitet 1-5<button class="infoBtn" type="button" data-info="soevnkvalitet" aria-label="Mere info om søvnkvalitet">?</button></label><select id="sleepQuality"><option value="">Vælg</option><option value="1">1 - uden hvile</option><option value="2">2</option><option value="3">3 - nogenlunde</option><option value="4">4</option><option value="5">5 - god</option></select></div>
@@ -305,6 +324,33 @@
         </div>
       </div>
 
+      
+      
+      <div class="dataSection">
+        <h3>Rediger registrering</h3>
+        <p class="small">Vælg dato og type. Når du trykker rediger, åbnes formularen med de gemte data for den dag.</p>
+        <div class="grid">
+          <div>
+            <label>Dato</label>
+            <select id="editDateSelect">
+              <option value="">Ingen registreringer endnu</option>
+            </select>
+          </div>
+          <div>
+            <label>Type</label>
+            <select id="editTypeSelect">
+              <option value="mood">Stemning</option>
+              <option value="sleep">Søvn</option>
+            </select>
+          </div>
+          <div class="full">
+            <button class="btn secondary" type="button" id="editSelectedBtn">✏️ Rediger valgt registrering</button>
+            <p class="hint" id="editSelectHint"></p>
+          </div>
+        </div>
+      </div>
+
+
       <div class="dataSection" style="background:rgba(220,38,38,.03)">
         <h3 style="color:var(--red)">Nulstil</h3>
         <p class="small">Slet permanent alle gemte data i denne browser. Husk at downloade en CSV- eller JSON-fil først, hvis du vil gemme dine registreringer.</p>
@@ -314,7 +360,7 @@
         </button>
       </div>
     </div>
-    <div class="footerNote">Stemning & Søvn v1.2.0<br>© 2026 Lars Møller Andersen<br>Alle rettigheder forbeholdes.<br>Udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn.</div>
+    <div class="footerNote">Stemning & Søvn v1.4.0<br>© 2026 Lars Møller Andersen<br>Alle rettigheder forbeholdes.<br>Udviklet som et uafhængigt hjælpemiddel til registrering af stemning og søvn.</div>
   </section>
 </div>
 
@@ -409,11 +455,174 @@ $('infoClose').addEventListener('click',closeInfo);
 $('infoModal').addEventListener('click',e=>{if(e.target.id==='infoModal') closeInfo();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape') closeInfo();});
 
-function show(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden')); $('view-'+name).classList.remove('hidden'); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===name)); refreshCharts();}
+function show(name){document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden')); $('view-'+name).classList.remove('hidden'); document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===name)); refreshCharts(); renderEditList(); bindEditDropdown();}
 
-$('moodForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.mood,{date:$('date').value,mood:+$('mood').value,anxiety:+$('anxiety').value,energy:+$('energy').value,irritability:+$('irritability').value,sleepHours:$('sleepHours').value?+$('sleepHours').value:null,medicine:$('medicine').value,note:$('note').value.trim()}); save(); alert('Registrering gemt');});
-$('sleepForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.sleep,{date:$('sleepDate').value,quality:$('sleepQuality').value?+$('sleepQuality').value:null,bedtime:$('bedtime').value,sleepTime:$('sleepTime').value,wakeTime:$('wakeTime').value,getupTime:$('getupTime').value,awakenings:$('awakenings').value?+$('awakenings').value:null,awakeMinutes:$('awakeMinutes').value?+$('awakeMinutes').value:null,caffeine:$('caffeine').value,alcohol:$('alcohol').value,nap:$('nap').value,screen:$('screen').value,sleepMedication:$('sleepMedication').value,beforeBed:$('beforeBed').value.trim()}); save(); alert('Søvnregistrering gemt');});
-$('clearMoodForm').onclick=()=>{$('moodForm').reset(); initDates(); ['mood','anxiety','energy','irritability'].forEach(id=>$(id).dispatchEvent(new Event('input')))};
+$('moodForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.mood,{date:$('date').value,mood:+$('mood').value,anxiety:+$('anxiety').value,energy:+$('energy').value,irritability:+$('irritability').value,sleepHours:$('sleepHours').value?+$('sleepHours').value:null,medicine:$('medicine').value,note:$('note').value.trim()}); save(); setEditBanner('mood', false); alert('Registrering gemt');});
+$('sleepForm').addEventListener('submit',e=>{e.preventDefault(); upsert(state.sleep,{date:$('sleepDate').value,quality:$('sleepQuality').value?+$('sleepQuality').value:null,bedtime:$('bedtime').value,sleepTime:$('sleepTime').value,wakeTime:$('wakeTime').value,getupTime:$('getupTime').value,awakenings:$('awakenings').value?+$('awakenings').value:null,awakeMinutes:$('awakeMinutes').value?+$('awakeMinutes').value:null,caffeine:$('caffeine').value,alcohol:$('alcohol').value,nap:$('nap').value,screen:$('screen').value,sleepMedication:$('sleepMedication').value,beforeBed:$('beforeBed').value.trim()}); save(); setEditBanner('sleep', false); alert('Søvnregistrering gemt');});
+$('clearMoodForm').onclick=()=>{setEditBanner('mood', false); $('moodForm').reset(); initDates(); ['mood','anxiety','energy','irritability'].forEach(id=>$(id).dispatchEvent(new Event('input')))};
+
+
+function setVal(id, value){
+  const el=$(id);
+  if(!el) return;
+  el.value = value ?? '';
+  el.dispatchEvent(new Event('input', {bubbles:true}));
+  el.dispatchEvent(new Event('change', {bubbles:true}));
+}
+
+function setEditBanner(type, show){
+  const id = type === 'mood' ? 'moodEditBanner' : 'sleepEditBanner';
+  const el = $(id);
+  if(el) el.classList.toggle('hidden', !show);
+}
+
+function editMoodDate(date){
+  const item = state.mood.find(x=>x.date===date);
+  if(!item){ alert('Kunne ikke finde stemningsregistreringen.'); return; }
+  setVal('date', item.date);
+  setVal('medicine', item.medicine ?? '');
+  setVal('mood', item.mood ?? 0);
+  setVal('anxiety', item.anxiety ?? 0);
+  setVal('energy', item.energy ?? 5);
+  setVal('irritability', item.irritability ?? 0);
+  setVal('sleepHours', item.sleepHours ?? '');
+  setVal('note', item.note ?? '');
+  setEditBanner('mood', true);
+  show('register');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function editSleepDate(date){
+  const item = state.sleep.find(x=>x.date===date);
+  if(!item){ alert('Kunne ikke finde søvnregistreringen.'); return; }
+  setVal('sleepDate', item.date);
+  setVal('sleepQuality', item.quality ?? '');
+  setVal('sleepMedication', item.sleepMedication ?? 'Nej / ingen');
+  setVal('bedtime', item.bedtime ?? '');
+  setVal('sleepTime', item.sleepTime ?? '');
+  setVal('wakeTime', item.wakeTime ?? '');
+  setVal('getupTime', item.getupTime ?? '');
+  setVal('awakenings', item.awakenings ?? '');
+  setVal('awakeMinutes', item.awakeMinutes ?? '');
+  setVal('caffeine', item.caffeine ?? 'Nej');
+  setVal('alcohol', item.alcohol ?? 'Nej');
+  setVal('nap', item.nap ?? 'Nej');
+  setVal('screen', item.screen ?? 'Nej');
+  setVal('beforeBed', item.beforeBed ?? '');
+  setEditBanner('sleep', true);
+  show('sleep');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+
+function renderEditList(){
+  const dateSelect = $('editDateSelect');
+  const typeSelect = $('editTypeSelect');
+  const hint = $('editSelectHint');
+  if(!dateSelect || !typeSelect) return;
+
+  const dates = Array.from(new Set([...(state.mood||[]).map(x=>x.date), ...(state.sleep||[]).map(x=>x.date)])).sort().reverse();
+
+  if(!dates.length){
+    dateSelect.innerHTML = '<option value="">Ingen registreringer endnu</option>';
+    if(hint){ hint.textContent = 'Der er endnu ingen registreringer at redigere.'; hint.className='hint editSelectHintWarn'; }
+    return;
+  }
+
+  const current = dateSelect.value;
+  dateSelect.innerHTML = dates.map(d=>{
+    const m = (state.mood||[]).some(x=>x.date===d);
+    const s = (state.sleep||[]).some(x=>x.date===d);
+    const labelParts = [];
+    if(m) labelParts.push('stemning');
+    if(s) labelParts.push('søvn');
+    return `<option value="${d}">${danskDato(d)} — ${labelParts.join(' + ')}</option>`;
+  }).join('');
+
+  if(current && dates.includes(current)) dateSelect.value = current;
+
+  updateEditSelectHint();
+}
+
+function updateEditSelectHint(){
+  const dateSelect = $('editDateSelect');
+  const typeSelect = $('editTypeSelect');
+  const hint = $('editSelectHint');
+  if(!dateSelect || !typeSelect || !hint) return;
+
+  const date = dateSelect.value;
+  const type = typeSelect.value;
+  if(!date){
+    hint.textContent = 'Der er endnu ingen registreringer at redigere.';
+    hint.className = 'hint editSelectHintWarn';
+    return;
+  }
+
+  const hasMood = (state.mood||[]).some(x=>x.date===date);
+  const hasSleep = (state.sleep||[]).some(x=>x.date===date);
+
+  if(type === 'mood' && !hasMood){
+    hint.textContent = 'Der findes ingen stemningsregistrering på den valgte dato.';
+    hint.className = 'hint editSelectHintWarn';
+    return;
+  }
+
+  if(type === 'sleep' && !hasSleep){
+    hint.textContent = 'Der findes ingen søvnregistrering på den valgte dato.';
+    hint.className = 'hint editSelectHintWarn';
+    return;
+  }
+
+  hint.textContent = type === 'mood'
+    ? 'Klar til at redigere stemningsregistreringen for den valgte dato.'
+    : 'Klar til at redigere søvnregistreringen for den valgte dato.';
+  hint.className = 'hint editSelectHintOk';
+}
+
+function editSelectedRegistration(){
+  const dateSelect = $('editDateSelect');
+  const typeSelect = $('editTypeSelect');
+  if(!dateSelect || !typeSelect || !dateSelect.value){
+    alert('Der er ingen registrering valgt.');
+    return;
+  }
+
+  const date = dateSelect.value;
+  const type = typeSelect.value;
+
+  if(type === 'mood'){
+    const exists = (state.mood||[]).some(x=>x.date===date);
+    if(!exists){ alert('Der findes ingen stemningsregistrering på den valgte dato.'); return; }
+    editMoodDate(date);
+  } else {
+    const exists = (state.sleep||[]).some(x=>x.date===date);
+    if(!exists){ alert('Der findes ingen søvnregistrering på den valgte dato.'); return; }
+    editSleepDate(date);
+  }
+}
+
+function bindEditDropdown(){
+  const dateSelect = $('editDateSelect');
+  const typeSelect = $('editTypeSelect');
+  const editBtn = $('editSelectedBtn');
+
+  if(dateSelect && !dateSelect.dataset.boundEditDropdown){
+    dateSelect.dataset.boundEditDropdown = 'true';
+    dateSelect.addEventListener('change', updateEditSelectHint);
+  }
+
+  if(typeSelect && !typeSelect.dataset.boundEditDropdown){
+    typeSelect.dataset.boundEditDropdown = 'true';
+    typeSelect.addEventListener('change', updateEditSelectHint);
+  }
+
+  if(editBtn && !editBtn.dataset.boundEditDropdown){
+    editBtn.dataset.boundEditDropdown = 'true';
+    editBtn.addEventListener('click', editSelectedRegistration);
+  }
+
+  updateEditSelectHint();
+}
 
 function refresh(){
   const lastMood=state.mood.at(-1), lastSleep=state.sleep.at(-1);
@@ -425,6 +634,7 @@ function refresh(){
   updateEntryList();
   updateWarningBox();
   updateMonthReminder();
+  renderEditList(); bindEditDropdown();
 }
 
 function updateWarningBox(){
